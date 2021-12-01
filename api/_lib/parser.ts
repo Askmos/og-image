@@ -1,44 +1,39 @@
 import { IncomingMessage } from 'http';
 import { parse } from 'url';
-import { ParsedRequest, Theme } from './types';
+import { ParsedRequest } from './types';
 
 export function parseRequest(req: IncomingMessage) {
     console.log('HTTP ' + req.url);
-    const { pathname, query } = parse(req.url || '/', true);
-    const { fontSize, images, widths, heights, theme, md } = (query || {});
+    const { query } = parse(req.url || '/', true);
+    const { fontSize, award, primaryColor, 
+        secondaryColor, textColor } = (query || {});
 
     if (Array.isArray(fontSize)) {
         throw new Error('Expected a single fontSize');
     }
-    if (Array.isArray(theme)) {
-        throw new Error('Expected a single theme');
-    }
-    
-    const arr = (pathname || '/').slice(1).split('.');
-    let extension = '';
-    let text = '';
-    if (arr.length === 0) {
-        text = '';
-    } else if (arr.length === 1) {
-        text = arr[0];
-    } else {
-        extension = arr.pop() as string;
-        text = arr.join('.');
-    }
+    const formattedAward = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(parseInt(getArray(award)[0], 10))
 
+    let extension = '';
+    console.log({primaryColor, secondaryColor, textColor})
     const parsedRequest: ParsedRequest = {
         fileType: extension === 'jpeg' ? extension : 'png',
-        text: decodeURIComponent(text),
-        theme: theme === 'dark' ? 'dark' : 'light',
-        md: md === '1' || md === 'true',
-        fontSize: fontSize || '96px',
-        images: getArray(images),
-        widths: getArray(widths),
-        heights: getArray(heights),
+        fontSize: fontSize || '120px',
+        award: formattedAward, 
+        colors: {
+            primaryColor: getArray(primaryColor)[0],
+            secondaryColor: getArray(secondaryColor)[0],
+            textColor: getArray(textColor)[0],
+        }
+
     };
-    parsedRequest.images = getDefaultImages(parsedRequest.images, parsedRequest.theme);
+
     return parsedRequest;
-}
+}5
 
 function getArray(stringOrArray: string[] | string | undefined): string[] {
     if (typeof stringOrArray === 'undefined') {
@@ -48,18 +43,4 @@ function getArray(stringOrArray: string[] | string | undefined): string[] {
     } else {
         return [stringOrArray];
     }
-}
-
-function getDefaultImages(images: string[], theme: Theme): string[] {
-    const defaultImage = theme === 'light'
-        ? 'https://assets.vercel.com/image/upload/front/assets/design/vercel-triangle-black.svg'
-        : 'https://assets.vercel.com/image/upload/front/assets/design/vercel-triangle-white.svg';
-
-    if (!images || !images[0]) {
-        return [defaultImage];
-    }
-    if (!images[0].startsWith('https://assets.vercel.com/') && !images[0].startsWith('https://assets.zeit.co/')) {
-        images[0] = defaultImage;
-    }
-    return images;
 }
