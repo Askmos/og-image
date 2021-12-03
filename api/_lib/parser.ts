@@ -1,12 +1,21 @@
 import { IncomingMessage } from 'http';
 import { parse } from 'url';
 import { ParsedRequest } from './types';
+import { AID_PROGRAMS_COLORS, AidColorPaletteName } from './scholarshipColors'
 
 export function parseRequest(req: IncomingMessage) {
     console.log('HTTP ' + req.url);
-    const { query } = parse(req.url || '/', true);
-    const { fontSize, award, primaryColor, 
-        secondaryColor, textColor } = (query || {});
+    const { query, pathname } = parse(req.url || '/', true);
+    if(!pathname) {
+        throw new Error("wrong path")
+    }
+    console.log(pathname)
+    const [,color, award] = pathname.split('/')
+
+
+
+    console.log({ color, award })
+    const { fontSize } = (query || {});
 
     if (Array.isArray(fontSize)) {
         throw new Error('Expected a single fontSize');
@@ -19,16 +28,13 @@ export function parseRequest(req: IncomingMessage) {
     }).format(parseInt(getArray(award)[0], 10))
 
     let extension = '';
-    console.log({primaryColor, secondaryColor, textColor})
+    const colors = AID_PROGRAMS_COLORS[color as AidColorPaletteName]
+    console.log({...colors})
     const parsedRequest: ParsedRequest = {
         fileType: extension === 'jpeg' ? extension : 'png',
         fontSize: fontSize || '120px',
         award: formattedAward, 
-        colors: {
-            primaryColor: getArray(primaryColor)[0],
-            secondaryColor: getArray(secondaryColor)[0],
-            textColor: getArray(textColor)[0],
-        }
+        colors
 
     };
 

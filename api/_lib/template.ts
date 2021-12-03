@@ -17,7 +17,7 @@ function getCss(fontSize: string, colors: any) {
     }
 
     body {
-        background: #${colors.primaryColor};
+        background: ${colors.primary};
         height: 100vh;
         display: flex;
         text-align: center;
@@ -34,7 +34,7 @@ function getCss(fontSize: string, colors: any) {
         font-size: ${sanitizeHtml(fontSize)};
         font-style: normal;
         
-        color: #${colors.textColor};
+        color: ${colors.secondaryText};
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -42,7 +42,7 @@ function getCss(fontSize: string, colors: any) {
     }
     span {
         width: fit-content;
-        background: #${colors.secondaryColor};
+        background: ${colors.secondary};
         padding: 15px;
     }
     .withoutBottomPadding {

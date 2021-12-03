@@ -6,8 +6,9 @@ export interface ParsedRequest {
     fontSize: string;
     award: string
     colors: {
-        primaryColor: string,
-        secondaryColor: string,
-        textColor: string,
-    }
+        primary: string,
+        secondary: string,
+        primaryText: string,
+        secondaryText: string,
+      },
 }
